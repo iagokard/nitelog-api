@@ -1,0 +1,162 @@
+### General OS and Editor files ###
+# OS metadata
+.DS_Store            # macOS folder attributes
+Thumbs.db            # Windows thumbnail cache
+desktop.ini          # Windows folder customization
+*.swp                # Vim/Nvim swap files
+*.swo                # Vim/Nvim swap files
+*.un~                # Vim/Nvim undo files
+
+# Temporary files
+*.tmp
+*.bak
+*.pid
+*.seed
+*.pid.lock
+
+# Logs and databases
+*.log
+*.sql
+*.sqlite
+*.log.*
+
+# Session files
+Session.vim
+
+### Go ###
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test               # Test binary
+*.out                # Coverage tool output
+coverage.txt         # Coverage tool output
+profile.out          # Profiling output
+
+# Go workspace files
+go.work
+
+# Dependency directories
+vendor/
+bin/
+dist/
+
+### Gin ###
+# Gin-specific debug files
+debug
+
+### Docker ###
+# Docker files
+.dockerignore
+docker-compose.override.yml
+docker-compose.yml.bak
+docker-build.log
+
+# Docker volumes
+docker-volumes/
+
+# Kubernetes files
+kubeconfig.yaml
+
+### MongoDB ###
+# MongoDB data files
+/data/db/
+*.ns
+*.0
+*.mongod.lock
+/data/journal/
+/data/log/
+
+### NeoVim ###
+# Neovim specific
+.nvim/
+.luarc.json
+nvim-linux-*
+*.viminfo
+*.netrwhist
+~/.local/share/nvim/swap/*
+~/.local/share/nvim/undo/*
+
+# Packer.nvim generated files
+packer_compiled.lua
+
+### VS Code ###
+.vscode/
+!.vscode/settings.json.example
+!.vscode/tasks.json.example
+*.code-workspace
+
+# VS Code extensions
+.vscode/extensions.json
+.vscode/launch.json
+
+### JetBrains IDEs ###
+.idea/
+*.iml
+*.iws
+
+### Sublime Text ###
+*.sublime-workspace
+*.sublime-project
+
+### Environment Files ###
+# Local environment files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Sensitive credentials
+secrets.yml
+config/credentials/*.key
+
+### Build Artifacts ###
+# Compiled binary output
+/nitelog             # Project binary name
+*.tar.gz
+*.zip
+
+# Go module files (if not committing)
+go.sum
+go.mod
+
+### Test Artifacts ###
+# Test specific
+junit.xml
+test-results.xml
+
+### Documentation ###
+# Generated docs
+docs/swagger.json
+docs/swagger.yaml
+docs/coverage/
+
+### Linux ###
+# System files
+.fuse_hidden*
+.directory
+.trash-*
+
+### Windows ###
+# Windows image file caches
+ehthumbs_vista.db
+
+# Folder config file
+[Dd]esktop.ini
+
+### Project Specific ###
+# Configuration overrides
+config/local*.yml
+
+# Local development data
+/local-dev/
+/tmp/
+/run/
+/backups/
+
+# Editor-specific project files
+.project
+.settings/
