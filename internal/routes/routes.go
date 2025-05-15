@@ -2,42 +2,42 @@ package routes
 
 import (
 	"nitelog/internal/config"
-	"nitelog/internal/handlers"
+	"nitelog/internal/handlers/meeting"
+	"nitelog/internal/handlers/user"
 	"nitelog/internal/middleware"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func RegisterMeetingRoutes(router *gin.Engine, db *mongo.Database) {
+func RegisterRoutes(router *gin.Engine, db *mongo.Database) {
 	cfg := config.Load()
 
-	handler := handlers.NewDataHandler(db, "meetings")
+	meetingHandler := meeting.NewMeetingController(db.Collection("meetings"))
 	{
 		meetings := router.Group("/meetings")
-		meetings.POST("", handler.CreateMeeting)
-		meetings.POST("/user", handler.AddUserAttendance)
-		meetings.POST("/user/finish", handler.FinishUserAttendance)
-		meetings.GET("/by-date/:date", handler.GetMeetingByDate)
-		meetings.GET("/:id", handler.GetMeetingByID)
-		meetings.PUT("/update/:date", handler.UpdateMeetingCode)
+		meetings.POST("", meetingHandler.CreateMeeting)
+		meetings.GET("/by-date/:date", meetingHandler.GetMeetingByDate)
+		meetings.GET("/:id", meetingHandler.GetMeetingByID)
+		meetings.PUT("/update/:date", meetingHandler.UpdateMeetingCode)
 		// meetings.PUT("/:id", handler.UpdateMeeting)
-		meetings.DELETE("/:id", handler.DeleteMeeting)
+		meetings.DELETE("/:id", meetingHandler.DeleteMeeting)
 
 	}
 
-	handler = handlers.NewDataHandler(db, "users")
+	userHandler := user.NewUserController(db.Collection("users"))
 	{
-		user := router.Group("/user")
-		user.POST("/register", handler.CreateUser)
-		user.POST("/login", handler.LoginUser)
+		users := router.Group("/user")
+		users.POST("/add-attendance", userHandler.AddUserAttendance)
+		users.POST("/finish-attendance", userHandler.FinishUserAttendance)
+		users.POST("/register", userHandler.CreateUser)
+		users.POST("/login", userHandler.LoginUser)
 
-		user.Use(
+		users.Use(
 			middleware.CORSMiddleware(),
 			middleware.JWTMiddleware(cfg.JWTSecret),
 		)
 
-		user.PUT("/update/:id", handler.UpdateUser)
+		users.PUT("/update/:id", userHandler.UpdateUser)
 	}
-
 }

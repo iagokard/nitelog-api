@@ -36,8 +36,7 @@ func main() {
 	}
 
 	router := gin.Default()
-
-	routes.RegisterMeetingRoutes(router, client.Database(cfg.DBName))
+	routes.RegisterRoutes(router, client.Database(cfg.DBName))
 
 	// Graceful shutdown
 	srv := &http.Server{
