@@ -2,6 +2,7 @@ package meeting
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -15,24 +16,36 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func (h *MeetingController) CreateMeeting(c *gin.Context) {
-	var req struct {
-		Date string `json:"date" binding:"required"`
-	}
+type CreateMeetingRequest struct {
+	Date string `json:"date" example:"2025-10-26" binding:"required"`
+}
 
-	// Validate request
+// CreateMeeting godoc
+// @Summary      Cria uma nova reunião
+// @Description  Registra uma nova reunião com código único
+// @Tags         meeting
+// @Accept       json
+// @Produce      json
+// @Param        meeting  body      CreateMeetingRequest  true  "Data da Reunião"
+// @Success      201      {object}  models.Meeting
+// @Failure      400      {object}  util.ErrorResponse
+// @Failure      409      {object}  util.ErrorResponse
+// @Failure      500      {object}  util.ErrorResponse
+// @Router       /meetings [post]
+func (h *MeetingController) CreateMeeting(c *gin.Context) {
+	var req CreateMeetingRequest
+
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 		return
 	}
 
-	// Parse date with strict validation
 	date, err := time.Parse("2006-01-02", req.Date)
 	if err != nil {
+		details := fmt.Sprintf("examle: 2025-04-02, received: %s", req.Date)
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error":    "Invalid date format",
-			"example":  "2023-10-05",
-			"received": req.Date,
+			"error":   "Invalid date format",
+			"details": details,
 		})
 		return
 	}
@@ -49,7 +62,6 @@ func (h *MeetingController) CreateMeeting(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	// Check for existing meeting with proper error handling
 	var existing models.Meeting
 	err = h.collection.FindOne(ctx, bson.M{
 		"date": normalizedDate,
@@ -58,17 +70,16 @@ func (h *MeetingController) CreateMeeting(c *gin.Context) {
 	if err == nil {
 		c.JSON(http.StatusConflict, gin.H{
 			"error":   "Meeting already exists for this date",
-			"meeting": existing,
+			"details": existing,
 		})
 		return
 	}
 
 	if err != mongo.ErrNoDocuments {
-		// Log detailed error for debugging
 		log.Printf("Database error: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":  "Database operation failed",
-			"detail": err.Error(), // Return actual error details
+			"error":   "Database operation failed",
+			"details": err.Error(), // Return actual error details
 		})
 		return
 	}
@@ -80,7 +91,6 @@ func (h *MeetingController) CreateMeeting(c *gin.Context) {
 		MeetingCode: util.GenerateMeetingCode(),
 		Attendance:  []models.Attendance{},
 		CreatedAt:   time.Now().UTC(),
-		UpdatedAt:   time.Now().UTC(),
 	}
 
 	// Insert with timeout
@@ -91,8 +101,8 @@ func (h *MeetingController) CreateMeeting(c *gin.Context) {
 	if err != nil {
 		log.Printf("Insert error: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":  "Failed to create meeting",
-			"detail": err.Error(),
+			"error":   "Failed to create meeting",
+			"details": err.Error(),
 		})
 		return
 	}

@@ -12,6 +12,25 @@ import (
 	"nitelog/internal/models"
 )
 
+type UpdateUserRequest struct {
+	Username string `json:"username" example:"username01"`
+	Email    string `json:"email" example:"sample@email.com"`
+}
+
+// UpdateUser godoc
+// @Summary      Atualiza um usuário
+// @Description  Atualiza um usuário no sistema
+// @Tags         user_auth
+// @Accept       json
+// @Produce      json
+// @Param        user_id  path      string  true  "Id do usuário"
+// @Param        user_data  body      UpdateUserRequest  true  "Novos Dados do Usuário"
+// @Success      201   {object}  models.User
+// @Failure      400   {object}  util.ErrorResponse
+// @Failure      409   {object}  util.ErrorResponse
+// @Failure      500   {object}  util.ErrorResponse
+// @Security BearerAuth
+// @Router       /users/update/:id [put]
 func (h *UserController) UpdateUser(c *gin.Context) {
 	// Extrai userID do token
 	uid, exists := c.Get("userID")

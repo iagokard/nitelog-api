@@ -1,4 +1,4 @@
-package user
+package meeting
 
 import (
 	"context"
@@ -14,12 +14,27 @@ import (
 	"nitelog/internal/models"
 )
 
-func (h *UserController) AddUserAttendance(c *gin.Context) {
-	var req struct {
-		UserID      string `json:"userId" binding:"required"`
-		Date        string `json:"date" binding:"required"`
-		MeetingCode string `json:"meetingCode" binding:"required"`
-	}
+type AddUserAttendanceRequest struct {
+	UserID      string `json:"userId" binding:"required"`
+	Date        string `json:"date" binding:"required"`
+	MeetingCode string `json:"meetingCode" binding:"required"`
+}
+
+// AddUserAttendance godoc
+// @Summary      Registra presença em reunião
+// @Description  Adiciona usuário à lista de presença
+// @Tags         attendance
+// @Accept       json
+// @Produce      json
+// @Param        attendance   body     AddUserAttendanceRequest true "Dados da presença"
+// @Success      200         {object}  util.MessageResponse
+// @Failure      400         {object}  util.ErrorResponse
+// @Failure      403         {object}  util.ErrorResponse
+// @Failure      404         {object}  util.ErrorResponse
+// @Failure      500         {object}  util.ErrorResponse
+// @Router       /meetings/add-attendance [post]
+func (h *MeetingController) AddUserAttendance(c *gin.Context) {
+	var req AddUserAttendanceRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -80,5 +95,5 @@ func (h *UserController) AddUserAttendance(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "User added to attendance"})
+	c.JSON(http.StatusOK, "User added to attendance")
 }

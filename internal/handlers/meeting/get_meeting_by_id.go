@@ -13,6 +13,19 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+// GetMeetingByID godoc
+// @Summary      Procura reunião por id
+// @Description  Procura reunião por id especifico
+// @Tags         meeting
+// @Accept       json
+// @Produce      json
+// @Param        meeting_id   path     string true "ID da reunião BSON primitive.ObjectID"
+// @Success      200         {object}  models.Meeting
+// @Failure      400         {object}  util.ErrorResponse
+// @Failure      403         {object}  util.ErrorResponse
+// @Failure      404         {object}  util.ErrorResponse
+// @Failure      500         {object}  util.ErrorResponse
+// @Router       /meetings/:id [get]
 func (h *MeetingController) GetMeetingByID(c *gin.Context) {
 	id := c.Param("id")
 	objID, err := primitive.ObjectIDFromHex(id)

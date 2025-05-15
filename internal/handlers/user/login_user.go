@@ -13,11 +13,29 @@ import (
 	"nitelog/internal/util"
 )
 
+type LoginUserRequest struct {
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required"`
+}
+
+type LoginUserResponse struct {
+	Token string `json:"token"`
+}
+
+// LoginUser godoc
+// @Summary      Autentica um usuário
+// @Description  Gera token JWT para usuário válido
+// @Tags         user
+// @Accept       json
+// @Produce      json
+// @Param        credentials  body      LoginUserRequest  true  "Credenciais"
+// @Success      200          {object}  LoginUserResponse
+// @Failure      400          {object}  util.ErrorResponse
+// @Failure      401          {object}  util.ErrorResponse
+// @Failure      500          {object}  util.ErrorResponse
+// @Router       /users/login [post]
 func (h *UserController) LoginUser(c *gin.Context) {
-	var req struct {
-		Email    string `json:"email" binding:"required,email"`
-		Password string `json:"password" binding:"required"`
-	}
+	var req LoginUserRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -48,5 +66,10 @@ func (h *UserController) LoginUser(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not generate token"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"token": token})
+
+	res := LoginUserResponse{
+		Token: token,
+	}
+
+	c.JSON(http.StatusOK, res)
 }

@@ -13,6 +13,19 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+// GetMeetingByDate godoc
+// @Summary      Procura reunião por data
+// @Description  Procura reunião por data especifica
+// @Tags         meeting
+// @Accept       json
+// @Produce      json
+// @Param        date        path      string true "Data no estilo: 2024-10-26"
+// @Success      200         {object}  models.Meeting
+// @Failure      400         {object}  util.ErrorResponse
+// @Failure      403         {object}  util.ErrorResponse
+// @Failure      404         {object}  util.ErrorResponse
+// @Failure      500         {object}  util.ErrorResponse
+// @Router       /meetings/by-date/:date [get]
 func (h *MeetingController) GetMeetingByDate(c *gin.Context) {
 	dateParam := c.Param("date")
 	date, err := time.Parse("2006-01-02", dateParam)

@@ -9,6 +9,17 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// @model ErrorResponse
+type ErrorResponse struct {
+	Error   string `json:"error"`
+	Details string `json:"details,omitempty"`
+}
+
+// @model MessageResponse
+type MessageResponse struct {
+	Message string `json:"message" example:"Sample status message"`
+}
+
 func GenerateMeetingCode() string {
 	b := make([]byte, 6)
 	rand.Read(b)

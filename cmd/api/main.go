@@ -18,6 +18,17 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
+// @title           NiteLog API
+// @version         1.0
+// @description     API para gestão do Nite
+// @contact.name    Suporte NiteLog
+// @contact.email   suporte@nitelog.com
+// @license.name    MIT
+// @host            localhost:8080
+// @BasePath        /
+// @securityDefinitions.apikey  BearerAuth
+// @in                          header
+// @name                        Authorization
 func main() {
 	cfg := config.Load()
 

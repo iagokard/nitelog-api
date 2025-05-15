@@ -1,4 +1,4 @@
-package user
+package meeting
 
 import (
 	"context"
@@ -12,7 +12,25 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func (h *UserController) FinishUserAttendance(c *gin.Context) {
+type FinishUserAttendanceRequest struct {
+	UserID string `json:"user_id" binding:"required" example:"68253a5154c3608b34c81d79"`
+	Date   string `json:"date" binding:"required" example:"2025-10-26"`
+}
+
+// FinishUserAttendance godoc
+// @Summary      Finaliza presença em reunião
+// @Description  Finaliza a presença usuário do usuário
+// @Tags         attendance
+// @Accept       json
+// @Produce      json
+// @Param        attendance     body   FinishUserAttendanceRequest true "Dados da presença"
+// @Success      200         {object}  util.MessageResponse
+// @Failure      400         {object}  util.ErrorResponse
+// @Failure      403         {object}  util.ErrorResponse
+// @Failure      404         {object}  util.ErrorResponse
+// @Failure      500         {object}  util.ErrorResponse
+// @Router       /meetings/finish-attendance [post]
+func (h *MeetingController) FinishUserAttendance(c *gin.Context) {
 	var req struct {
 		UserID string `json:"userId" binding:"required"`
 		Date   string `json:"date" binding:"required"`

@@ -14,12 +14,26 @@ import (
 	"nitelog/internal/util"
 )
 
+type CreateUserRequest struct {
+	Username string `json:"username" example:"username01"`
+	Email    string `json:"email" example:"sample@email.com"`
+	Password string `json:"password" binding:"required" example:"safePassword123#"`
+}
+
+// CreateUser godoc
+// @Summary      Cria um novo usuário
+// @Description  Cadastra um novo usuário no sistema
+// @Tags         user
+// @Accept       json
+// @Produce      json
+// @Param        user  body      CreateUserRequest  true  "Dados do Usuário"
+// @Success      201   {object}  models.User
+// @Failure      400   {object}  util.ErrorResponse
+// @Failure      409   {object}  util.ErrorResponse
+// @Failure      500   {object}  util.ErrorResponse
+// @Router       /users [post]
 func (h *UserController) CreateUser(c *gin.Context) {
-	var req struct {
-		Username string `json:"username" binding:"required"`
-		Email    string `json:"email" binding:"required"`
-		Password string `json:"password" binding:"required"`
-	}
+	var req CreateUserRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
@@ -39,8 +53,8 @@ func (h *UserController) CreateUser(c *gin.Context) {
 
 	if err == nil {
 		c.JSON(http.StatusConflict, gin.H{
-			"error": "User already exists",
-			"user":  existing,
+			"error":   "User already exists",
+			"details": existing,
 		})
 		return
 	}
@@ -68,8 +82,8 @@ func (h *UserController) CreateUser(c *gin.Context) {
 	if err != nil {
 		log.Printf("Insert error: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":  "Failed to create meeting",
-			"detail": err.Error(),
+			"error":   "Failed to create meeting",
+			"details": err.Error(),
 		})
 		return
 	}
