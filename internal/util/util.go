@@ -3,6 +3,7 @@ package util
 import (
 	"crypto/rand"
 	"encoding/base64"
+	"nitelog/internal/config"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -20,18 +21,37 @@ type MessageResponse struct {
 	Message string `json:"message" example:"Sample status message"`
 }
 
+func NormalizeDate(date time.Time) (*time.Time, error) {
+	cfg := config.Load()
+	location, err := time.LoadLocation(cfg.Timezone)
+
+	if err != nil {
+		return nil, err
+	}
+
+	normalizedDate := time.Date(
+		date.Year(),
+		date.Month(),
+		date.Day(),
+		0, 0, 0, 0,
+		location,
+	).UTC()
+
+	return &normalizedDate, nil
+}
+
 func GenerateMeetingCode() string {
 	b := make([]byte, 6)
 	rand.Read(b)
 	return base64.URLEncoding.EncodeToString(b)[:8]
 }
 
-func HashPassword(password string) (string, error) {
+func HashPassword(password string) ([]byte, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return string(hash), nil
+	return hash, nil
 }
 
 func CheckPassword(hash, password string) error {
@@ -46,7 +66,7 @@ func ParseDate(date string) (time.Time, error) {
 }
 
 func GenerateJWT(userID, secret string) (string, error) {
-	expirationTime := 2 * time.Minute
+	expirationTime := 24 * time.Hour
 	claims := jwt.StandardClaims{
 		Subject:   userID,
 		ExpiresAt: time.Now().Add(expirationTime).Unix(),

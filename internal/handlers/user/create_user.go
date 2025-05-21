@@ -2,15 +2,12 @@ package user
 
 import (
 	"context"
-	"log"
+	"errors"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 
-	"nitelog/internal/models"
+	"nitelog/internal/services"
 	"nitelog/internal/util"
 )
 
@@ -40,25 +37,6 @@ func (h *UserController) CreateUser(c *gin.Context) {
 		return
 	}
 
-	checkCtx, checkCancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer checkCancel()
-
-	var existing models.User
-	err := h.collection.FindOne(checkCtx, bson.M{
-		"$or": []bson.M{
-			{"email": req.Email},
-			{"username": req.Username},
-		},
-	}).Decode(&existing)
-
-	if err == nil {
-		c.JSON(http.StatusConflict, gin.H{
-			"error":   "User already exists",
-			"details": existing,
-		})
-		return
-	}
-
 	hash, err := util.HashPassword(req.Password)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -67,22 +45,20 @@ func (h *UserController) CreateUser(c *gin.Context) {
 		return
 	}
 
-	newUser := models.User{
-		ID:           primitive.NewObjectID(),
-		Username:     req.Username,
-		Email:        req.Email,
-		PasswordHash: string(hash),
-		Roles:        []string{},
+	ctx := context.Background()
+	userService := services.NewUserService()
+	newUser, err := userService.Create(ctx, req.Username, req.Email, hash)
+
+	if errors.Is(err, services.ErrEmailTaken) || errors.Is(err, services.ErrUsernameTaken) {
+		c.JSON(http.StatusConflict, gin.H{
+			"error": err.Error(),
+		})
+		return
 	}
 
-	insertCtx, insertCancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer insertCancel()
-
-	_, err = h.collection.InsertOne(insertCtx, newUser)
 	if err != nil {
-		log.Printf("Insert error: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":   "Failed to create meeting",
+			"error":   "Error creating user",
 			"details": err.Error(),
 		})
 		return

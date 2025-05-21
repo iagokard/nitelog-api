@@ -11,7 +11,7 @@ const docTemplate = `{
         "title": "{{.Title}}",
         "contact": {
             "name": "Suporte NiteLog",
-            "email": "suporte@nitelog.com"
+            "email": "sample@email.com"
         },
         "license": {
             "name": "MIT"
@@ -61,7 +61,7 @@ const docTemplate = `{
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/util.ErrorResponse"
+                            "$ref": "#/definitions/meeting.DuplicatedMeetingErrorResponse"
                         }
                     },
                     "500": {
@@ -104,12 +104,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/util.ErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/util.ErrorResponse"
                         }
@@ -158,12 +152,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/util.ErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/util.ErrorResponse"
                         }
@@ -220,14 +208,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/util.ErrorResponse"
                         }
                     },
-                    "403": {
-                        "description": "Forbidden",
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/util.ErrorResponse"
                         }
                     },
-                    "404": {
-                        "description": "Not Found",
+                    "409": {
+                        "description": "Conflict",
                         "schema": {
                             "$ref": "#/definitions/util.ErrorResponse"
                         }
@@ -272,12 +260,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/util.ErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/util.ErrorResponse"
                         }
@@ -330,12 +312,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/util.ErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/util.ErrorResponse"
                         }
@@ -394,6 +370,56 @@ const docTemplate = `{
                     },
                     "409": {
                         "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/:id": {
+            "delete": {
+                "description": "Deleta um usuário do banco de dados",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Deleta um usuário",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Id do usuário (BSON primitive.ObjectID)",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/util.MessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/util.ErrorResponse"
                         }
@@ -496,10 +522,10 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "201": {
-                        "description": "Created",
+                    "200": {
+                        "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/util.MessageResponse"
                         }
                     },
                     "400": {
@@ -508,8 +534,14 @@ const docTemplate = `{
                             "$ref": "#/definitions/util.ErrorResponse"
                         }
                     },
-                    "409": {
-                        "description": "Conflict",
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/util.ErrorResponse"
                         }
@@ -529,18 +561,16 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "date",
-                "meetingCode",
-                "userId"
+                "user_id"
             ],
             "properties": {
                 "date": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2025-10-26"
                 },
-                "meetingCode": {
-                    "type": "string"
-                },
-                "userId": {
-                    "type": "string"
+                "user_id": {
+                    "type": "string",
+                    "example": "68253a5154c3608b34c81d79"
                 }
             }
         },
@@ -553,6 +583,18 @@ const docTemplate = `{
                 "date": {
                     "type": "string",
                     "example": "2025-10-26"
+                }
+            }
+        },
+        "meeting.DuplicatedMeetingErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "Meeting already exists for this date"
+                },
+                "existing_meeting": {
+                    "$ref": "#/definitions/models.Meeting"
                 }
             }
         },
@@ -607,6 +649,10 @@ const docTemplate = `{
                     "type": "string",
                     "example": "2024-10-26"
                 },
+                "deleted_at": {
+                    "type": "string",
+                    "example": "2025-05-15T09:45:00Z"
+                },
                 "id": {
                     "type": "string",
                     "example": "6824f98cb453ef098596dc92"
@@ -620,6 +666,14 @@ const docTemplate = `{
         "models.User": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string",
+                    "example": "2025-05-14T20:14:04.245Z"
+                },
+                "deleted_at": {
+                    "type": "string",
+                    "example": "2025-05-15T09:45:00Z"
+                },
                 "email": {
                     "type": "string",
                     "example": "sample@email.com"
@@ -633,6 +687,10 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                },
+                "updated_at": {
+                    "type": "string",
+                    "example": "2026-05-14T12:18:34.245Z"
                 },
                 "username": {
                     "type": "string",
@@ -690,6 +748,10 @@ const docTemplate = `{
                     "type": "string",
                     "example": "sample@email.com"
                 },
+                "password": {
+                    "type": "string",
+                    "example": "safePassword123#"
+                },
                 "username": {
                     "type": "string",
                     "example": "username01"
@@ -732,7 +794,7 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:8080",
 	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "NiteLog API",
+	Title:            "NITELog API",
 	Description:      "API para gestão do Nite",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

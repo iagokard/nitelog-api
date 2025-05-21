@@ -3,13 +3,11 @@ package user
 import (
 	"context"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson"
 
 	"nitelog/internal/config"
-	"nitelog/internal/models"
+	"nitelog/internal/services"
 	"nitelog/internal/util"
 )
 
@@ -42,21 +40,18 @@ func (h *UserController) LoginUser(c *gin.Context) {
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+	ctx := context.Background()
 
-	var user models.User
-	err := h.collection.FindOne(ctx, bson.M{
-		"email": req.Email,
-	}).Decode(&user)
+	userService := services.NewUserService()
+	user, err := userService.GetByEmail(ctx, req.Email)
 
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "credentials invalid"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid email"})
 		return
 	}
 
 	if err := util.CheckPassword(user.PasswordHash, req.Password); err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "credentials invalid"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid password"})
 		return
 	}
 

@@ -18,6 +18,8 @@ func RegisterRoutes(router *gin.Engine, db *mongo.Database) {
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
+	router.Use(middleware.TimeoutMiddleware())
+
 	meetingHandler := meeting.NewMeetingController(db.Collection("meetings"))
 	{
 		meetings := router.Group("/meetings")
@@ -26,7 +28,6 @@ func RegisterRoutes(router *gin.Engine, db *mongo.Database) {
 		meetings.POST("/add-attendance", meetingHandler.AddUserAttendance)
 		meetings.POST("/finish-attendance", meetingHandler.FinishUserAttendance)
 		meetings.GET("/:id", meetingHandler.GetMeetingByID)
-		meetings.PUT("/update/:date", meetingHandler.UpdateMeetingCode)
 		// meetings.PUT("/:id", handler.UpdateMeeting)
 		meetings.DELETE("/:id", meetingHandler.DeleteMeeting)
 
@@ -37,6 +38,7 @@ func RegisterRoutes(router *gin.Engine, db *mongo.Database) {
 		users := router.Group("/users")
 		users.POST("/register", userHandler.CreateUser)
 		users.POST("/login", userHandler.LoginUser)
+		users.DELETE("/:id", userHandler.DeleteUser)
 
 		users.Use(
 			middleware.CORSMiddleware(),

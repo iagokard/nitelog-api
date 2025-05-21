@@ -2,22 +2,26 @@ package meeting
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
 	"time"
 
 	"nitelog/internal/models"
+	"nitelog/internal/services"
 	"nitelog/internal/util"
 
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type CreateMeetingRequest struct {
 	Date string `json:"date" example:"2025-10-26" binding:"required"`
+}
+
+type DuplicatedMeetingErrorResponse struct {
+	Error           string          `json:"error" example:"Meeting already exists for this date"`
+	ExistingMeeting *models.Meeting `json:"existing_meeting"`
 }
 
 // CreateMeeting godoc
@@ -29,7 +33,7 @@ type CreateMeetingRequest struct {
 // @Param        meeting  body      CreateMeetingRequest  true  "Data da Reunião"
 // @Success      201      {object}  models.Meeting
 // @Failure      400      {object}  util.ErrorResponse
-// @Failure      409      {object}  util.ErrorResponse
+// @Failure      409      {object}  DuplicatedMeetingErrorResponse
 // @Failure      500      {object}  util.ErrorResponse
 // @Router       /meetings [post]
 func (h *MeetingController) CreateMeeting(c *gin.Context) {
@@ -50,62 +54,39 @@ func (h *MeetingController) CreateMeeting(c *gin.Context) {
 		return
 	}
 
-	// Normalize to UTC midnight
-	normalizedDate := time.Date(
-		date.Year(),
-		date.Month(),
-		date.Day(),
-		0, 0, 0, 0,
-		time.UTC,
-	)
+	normalizedDate, err := util.NormalizeDate(date)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	var existing models.Meeting
-	err = h.collection.FindOne(ctx, bson.M{
-		"date": normalizedDate,
-	}).Decode(&existing)
-
-	if err == nil {
-		c.JSON(http.StatusConflict, gin.H{
-			"error":   "Meeting already exists for this date",
-			"details": existing,
-		})
-		return
-	}
-
-	if err != mongo.ErrNoDocuments {
-		log.Printf("Database error: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":   "Database operation failed",
-			"details": err.Error(), // Return actual error details
-		})
-		return
-	}
-
-	// Create new meeting document
-	newMeeting := models.Meeting{
-		ID:          primitive.NewObjectID(),
-		Date:        normalizedDate,
-		MeetingCode: util.GenerateMeetingCode(),
-		Attendance:  []models.Attendance{},
-		CreatedAt:   time.Now().UTC(),
-	}
-
-	// Insert with timeout
-	insertCtx, insertCancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer insertCancel()
-
-	_, err = h.collection.InsertOne(insertCtx, newMeeting)
 	if err != nil {
-		log.Printf("Insert error: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":   "Failed to create meeting",
+			"error":   "Unable to normalize date",
 			"details": err.Error(),
 		})
 		return
 	}
 
-	c.JSON(http.StatusCreated, newMeeting)
+	ctx := context.Background()
+
+	meetingService := services.NewMeetingService()
+	meeting, err := meetingService.Create(ctx, *normalizedDate)
+
+	if errors.Is(err, services.ErrDuplicateMeeting) {
+		res := DuplicatedMeetingErrorResponse{
+			Error:           "Meeting already exists for this date",
+			ExistingMeeting: meeting,
+		}
+
+		c.JSON(http.StatusConflict, res)
+		return
+	}
+
+	if err != nil {
+		log.Printf("Database error: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":   "Database operation failed",
+			"details": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusCreated, meeting)
 }

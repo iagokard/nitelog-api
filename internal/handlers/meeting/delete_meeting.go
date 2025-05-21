@@ -2,11 +2,13 @@ package meeting
 
 import (
 	"context"
+	"errors"
 	"net/http"
+	"nitelog/internal/services"
 
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // DeleteMeeting godoc
@@ -18,7 +20,6 @@ import (
 // @Param        meeting_id   path   string true "Id da reunião (BSON primitive.ObjectID)"
 // @Success      200         {object}  util.MessageResponse
 // @Failure      400         {object}  util.ErrorResponse
-// @Failure      403         {object}  util.ErrorResponse
 // @Failure      404         {object}  util.ErrorResponse
 // @Failure      500         {object}  util.ErrorResponse
 // @Router       /meetings/:id [delete]
@@ -30,19 +31,23 @@ func (h *MeetingController) DeleteMeeting(c *gin.Context) {
 		return
 	}
 
-	result, err := h.collection.DeleteOne(
-		context.Background(),
-		bson.M{"_id": objID},
-	)
+	ctx := context.Background()
+
+	meetingService := services.NewMeetingService()
+	err = meetingService.SoftDelete(ctx, objID)
+
+	if errors.Is(err, mongo.ErrNoDocuments) {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Meeting not found"})
+		return
+	}
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	if result.DeletedCount == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Meeting not found"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "Meeting deleted successfully"})
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Meeting marked as deleted successfully",
+		"details": "The meeting has been soft deleted and can be recovered",
+	})
 }

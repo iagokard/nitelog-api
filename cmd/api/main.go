@@ -11,6 +11,7 @@ import (
 
 	"nitelog/internal/config"
 	"nitelog/internal/routes"
+	"nitelog/internal/services"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -18,11 +19,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-// @title           NiteLog API
+// @title           NITELog API
 // @version         1.0
 // @description     API para gestão do Nite
 // @contact.name    Suporte NiteLog
-// @contact.email   suporte@nitelog.com
+// @contact.email   sample@email.com
 // @license.name    MIT
 // @host            localhost:8080
 // @BasePath        /
@@ -45,6 +46,8 @@ func main() {
 	if err != nil {
 		log.Fatal("Ping failed:", err)
 	}
+
+	services.SetServicesDatabase(client.Database(cfg.DBName))
 
 	router := gin.Default()
 	routes.RegisterRoutes(router, client.Database(cfg.DBName))
