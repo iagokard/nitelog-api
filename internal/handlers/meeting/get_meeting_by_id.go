@@ -5,10 +5,9 @@ import (
 	"errors"
 	"net/http"
 
-	"nitelog/internal/services"
+	"nitelog/internal/services/meeting"
 
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // GetMeetingByID godoc
@@ -23,19 +22,13 @@ import (
 // @Failure      404         {object}  util.ErrorResponse
 // @Failure      500         {object}  util.ErrorResponse
 // @Router       /meetings/:id [get]
-func (h *MeetingController) GetMeetingByID(c *gin.Context) {
+func GetMeetingByID(c *gin.Context) {
 	id := c.Param("id")
-
-	objID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
-		return
-	}
 
 	ctx := context.Background()
 
 	meetingService := services.NewMeetingService()
-	meeting, err := meetingService.GetByID(ctx, objID)
+	meeting, err := meetingService.GetByID(ctx, id)
 
 	if errors.Is(err, services.ErrMeetingNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "No meeting for this date"})

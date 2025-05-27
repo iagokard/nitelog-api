@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"nitelog/internal/models"
-	"nitelog/internal/services"
+	"nitelog/internal/services/meeting"
 	"nitelog/internal/util"
 
 	"github.com/gin-gonic/gin"
@@ -36,7 +36,7 @@ type DuplicatedMeetingErrorResponse struct {
 // @Failure      409      {object}  DuplicatedMeetingErrorResponse
 // @Failure      500      {object}  util.ErrorResponse
 // @Router       /meetings [post]
-func (h *MeetingController) CreateMeeting(c *gin.Context) {
+func CreateMeeting(c *gin.Context) {
 	var req CreateMeetingRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -71,8 +71,7 @@ func (h *MeetingController) CreateMeeting(c *gin.Context) {
 
 	if errors.Is(err, services.ErrDuplicateMeeting) {
 		res := DuplicatedMeetingErrorResponse{
-			Error:           "Meeting already exists for this date",
-			ExistingMeeting: meeting,
+			Error: "Meeting already exists for this date",
 		}
 
 		c.JSON(http.StatusConflict, res)

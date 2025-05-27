@@ -7,7 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"nitelog/internal/services"
+	"nitelog/internal/services/user"
 	"nitelog/internal/util"
 )
 
@@ -29,7 +29,7 @@ type CreateUserRequest struct {
 // @Failure      409   {object}  util.ErrorResponse
 // @Failure      500   {object}  util.ErrorResponse
 // @Router       /users [post]
-func (h *UserController) CreateUser(c *gin.Context) {
+func CreateUser(c *gin.Context) {
 	var req CreateUserRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {

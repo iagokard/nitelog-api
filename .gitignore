@@ -160,3 +160,32 @@ config/local*.yml
 # Editor-specific project files
 .project
 .settings/
+
+# Firebase specific ignores
+# --------------------------
+
+# Local emulator data and metadata
+.firebase/
+firestore-debug.log
+
+# Firebase CLI configuration (optional - commit if sharing team settings)
+# .firebaserc
+
+# Service account credentials (NEVER commit these)
+*-service-account.json
+service-account.json
+*.key.json
+
+# Firebase debug logs
+firebase-debug.log
+firebase-debug.*.log
+
+# Emulator UI settings
+.firebaseui/
+
+# Node modules (if you have a separate Firebase functions directory)
+firebase-emulator/node_modules/
+
+# Authentication emulator data
+auth_emulator.log
+auth_emulator_data.json

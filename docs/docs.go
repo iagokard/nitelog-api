@@ -384,7 +384,60 @@ const docTemplate = `{
             }
         },
         "/users/:id": {
+            "get": {
+                "description": "Procura usuário por id especifico",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Procura usuário por id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID do usuário",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Deleta um usuário do banco de dados",
                 "consumes": [
                     "application/json"
@@ -500,7 +553,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user_auth"
+                    "user"
                 ],
                 "summary": "Atualiza um usuário",
                 "parameters": [
@@ -628,7 +681,7 @@ const docTemplate = `{
                 },
                 "user_id": {
                     "type": "string",
-                    "example": "68253a5154c3608b34c81d79"
+                    "example": "d4e5f6a7b8c9d0e1f2a3b4c5"
                 }
             }
         },
@@ -655,7 +708,7 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "string",
-                    "example": "6824f98cb453ef098596dc92"
+                    "example": "a1b2c3d4e5f6g7h8i9j0k1"
                 },
                 "meeting_code": {
                     "type": "string",
@@ -680,7 +733,15 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "string",
-                    "example": "68253a5154c3608b34c81d79"
+                    "example": "d4e5f6a7b8c9d0e1f2a3b4c5"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "John Testes"
+                },
+                "registration": {
+                    "type": "string",
+                    "example": "42682087032"
                 },
                 "roles": {
                     "type": "array",

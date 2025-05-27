@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"nitelog/internal/services"
+	"nitelog/internal/services/meeting"
 	"nitelog/internal/util"
 
 	"github.com/gin-gonic/gin"
@@ -24,7 +24,7 @@ import (
 // @Failure      404         {object}  util.ErrorResponse
 // @Failure      500         {object}  util.ErrorResponse
 // @Router       /meetings/by-date/:date [get]
-func (h *MeetingController) GetMeetingByDate(c *gin.Context) {
+func GetMeetingByDate(c *gin.Context) {
 	dateParam := c.Param("date")
 
 	date, err := time.Parse("2006-01-02", dateParam)

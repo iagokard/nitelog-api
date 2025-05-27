@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"nitelog/internal/models"
-	"nitelog/internal/services"
+	"nitelog/internal/services/user"
 )
 
 type UpdateUserRequest struct {
@@ -20,7 +20,7 @@ type UpdateUserRequest struct {
 // UpdateUser godoc
 // @Summary      Atualiza um usuário
 // @Description  Atualiza um usuário no sistema
-// @Tags         user_auth
+// @Tags         user
 // @Accept       json
 // @Produce      json
 // @Param        user_id  path      string  true  "Id do usuário"
@@ -32,7 +32,7 @@ type UpdateUserRequest struct {
 // @Failure      500   {object}  util.ErrorResponse
 // @Security BearerAuth
 // @Router       /users/update/:id [put]
-func (h *UserController) UpdateUser(c *gin.Context) {
+func UpdateUser(c *gin.Context) {
 	uid, exists := c.Get("userID")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})

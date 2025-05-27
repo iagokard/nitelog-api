@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"nitelog/internal/config"
-	"nitelog/internal/services"
+	"nitelog/internal/services/user"
 	"nitelog/internal/util"
 )
 
@@ -32,7 +32,7 @@ type LoginUserResponse struct {
 // @Failure      401          {object}  util.ErrorResponse
 // @Failure      500          {object}  util.ErrorResponse
 // @Router       /users/login [post]
-func (h *UserController) LoginUser(c *gin.Context) {
+func LoginUser(c *gin.Context) {
 	var req LoginUserRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -56,7 +56,7 @@ func (h *UserController) LoginUser(c *gin.Context) {
 	}
 
 	cfg := config.Load()
-	token, err := util.GenerateJWT(user.ID.Hex(), cfg.JWTSecret)
+	token, err := util.GenerateJWT(user.ID, cfg.JWTSecret)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not generate token"})
 		return

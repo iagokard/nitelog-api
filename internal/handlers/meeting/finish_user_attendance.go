@@ -4,13 +4,12 @@ import (
 	"context"
 	"errors"
 	"net/http"
-	"nitelog/internal/services"
+	meetingServices "nitelog/internal/services/meeting"
+	userServices "nitelog/internal/services/user"
 	"nitelog/internal/util"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type FinishUserAttendanceRequest struct {
@@ -30,7 +29,7 @@ type FinishUserAttendanceRequest struct {
 // @Failure      404         {object}  util.ErrorResponse
 // @Failure      500         {object}  util.ErrorResponse
 // @Router       /meetings/finish-attendance [post]
-func (h *MeetingController) FinishUserAttendance(c *gin.Context) {
+func FinishUserAttendance(c *gin.Context) {
 	var req FinishUserAttendanceRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -54,17 +53,10 @@ func (h *MeetingController) FinishUserAttendance(c *gin.Context) {
 		return
 	}
 
-	userID, err := primitive.ObjectIDFromHex(req.UserID)
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
-		return
-	}
-
 	ctx := context.Background()
 
-	userService := services.NewUserService()
-	_, err = userService.GetByID(ctx, userID)
+	userService := userServices.NewUserService()
+	_, err = userService.GetByID(ctx, req.UserID)
 
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
@@ -73,24 +65,22 @@ func (h *MeetingController) FinishUserAttendance(c *gin.Context) {
 		return
 	}
 
-	meetingService := services.NewMeetingService()
-	_, err = meetingService.FindAttendance(ctx, *normalizedDate, userID)
+	meetingService := meetingServices.NewMeetingService()
+	err = meetingService.FinishAttendance(ctx, *normalizedDate, req.UserID)
 
-	if err == nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Attendance already finalized for this user on the specified date",
+	if errors.Is(err, meetingServices.ErrMeetingNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": err.Error(),
 		})
 		return
 	}
 
-	if !errors.Is(err, mongo.ErrNoDocuments) {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Error checking attendance status",
+	if errors.Is(err, meetingServices.ErrNoAttendanceToFinish) {
+		c.JSON(http.StatusBadGateway, gin.H{
+			"error": err.Error(),
 		})
 		return
 	}
-
-	err = meetingService.FinishAttendance(ctx, *normalizedDate, userID)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{

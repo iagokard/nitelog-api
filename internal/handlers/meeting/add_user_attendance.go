@@ -7,11 +7,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 
-	"nitelog/internal/models"
-	"nitelog/internal/services"
+	meetingServices "nitelog/internal/services/meeting"
+	userServices "nitelog/internal/services/user"
 	"nitelog/internal/util"
 )
 
@@ -33,7 +31,7 @@ type AddUserAttendanceRequest struct {
 // @Failure      409      {object}  util.ErrorResponse
 // @Failure      500         {object}  util.ErrorResponse
 // @Router       /meetings/add-attendance [post]
-func (h *MeetingController) AddUserAttendance(c *gin.Context) {
+func AddUserAttendance(c *gin.Context) {
 	var req AddUserAttendanceRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -58,11 +56,11 @@ func (h *MeetingController) AddUserAttendance(c *gin.Context) {
 	}
 
 	ctx := context.Background()
-	meetingService := services.NewMeetingService()
+	meetingService := meetingServices.NewMeetingService()
 
-	meeting, err := meetingService.GetByDate(ctx, *normalizedDate)
+	_, err = meetingService.GetByDate(ctx, *normalizedDate)
 
-	if errors.Is(err, services.ErrMeetingNotFound) {
+	if errors.Is(err, meetingServices.ErrMeetingNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Meeting not found"})
 		return
 	}
@@ -72,17 +70,10 @@ func (h *MeetingController) AddUserAttendance(c *gin.Context) {
 		return
 	}
 
-	userID, err := primitive.ObjectIDFromHex(req.UserID)
+	userService := userServices.NewUserService()
+	_, err = userService.GetByID(ctx, req.UserID)
 
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
-		return
-	}
-
-	userService := services.NewUserService()
-	_, err = userService.GetByID(ctx, userID)
-
-	if errors.Is(err, services.ErrUserNotFound) {
+	if errors.Is(err, userServices.ErrUserNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}
@@ -92,23 +83,12 @@ func (h *MeetingController) AddUserAttendance(c *gin.Context) {
 		return
 	}
 
-	for _, attendance := range meeting.Attendance {
-		if attendance.UserID == userID {
-			c.JSON(http.StatusConflict, gin.H{"error": "User already in attendance"})
-			return
-		}
+	err = meetingService.AddAttendance(ctx, *normalizedDate, req.UserID)
+	if errors.Is(err, meetingServices.ErrActiveAttendanceExists) {
+		c.JSON(http.StatusConflict, gin.H{"error": "User already in attendance"})
+		return
 	}
 
-	update := bson.M{
-		"$push": bson.M{
-			"attendance": models.Attendance{
-				UserID:    userID,
-				StartTime: time.Now(),
-			},
-		},
-	}
-
-	err = meetingService.Update(ctx, meeting.ID, update)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

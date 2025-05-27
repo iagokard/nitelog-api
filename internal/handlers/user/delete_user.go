@@ -4,11 +4,9 @@ import (
 	"context"
 	"errors"
 	"net/http"
-	"nitelog/internal/services"
+	"nitelog/internal/services/user"
 
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // DeleteMeeting godoc
@@ -22,22 +20,18 @@ import (
 // @Failure      400         {object}  util.ErrorResponse
 // @Failure      404         {object}  util.ErrorResponse
 // @Failure      500         {object}  util.ErrorResponse
+// @Security BearerAuth
 // @Router       /users/:id [delete]
-func (h *UserController) DeleteUser(c *gin.Context) {
+func DeleteUser(c *gin.Context) {
 	id := c.Param("id")
-	objID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
-		return
-	}
 
 	ctx := context.Background()
 
 	userService := services.NewUserService()
-	err = userService.SoftDelete(ctx, objID)
+	err := userService.SoftDelete(ctx, id)
 
-	if errors.Is(err, mongo.ErrNoDocuments) {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Meeting not found"})
+	if errors.Is(err, services.ErrUserNotFound) {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 

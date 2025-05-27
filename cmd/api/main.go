@@ -4,19 +4,19 @@ import (
 	"context"
 	"log"
 	"os"
+	"time"
 
 	"net/http"
 	"os/signal"
-	"time"
 
 	"nitelog/internal/config"
 	"nitelog/internal/routes"
 	"nitelog/internal/services"
 
+	"cloud.google.com/go/firestore"
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/mongo/readpref"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 // @title           NITELog API
@@ -36,21 +36,25 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(cfg.MongoURI))
+	client, err := firestore.NewClient(ctx, cfg.ProjectID)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Failed to create Firestore client: ", err)
 	}
-	defer client.Disconnect(ctx)
+	defer client.Close()
 
-	err = client.Ping(ctx, readpref.Primary())
+	_, err = client.Collection("test").Doc("test").Get(ctx)
 	if err != nil {
-		log.Fatal("Ping failed:", err)
+		if status.Code(err) != codes.NotFound {
+			log.Fatal("Firestore connection check failed: ", err)
+		}
+
+		log.Println("Firestore connection verified")
 	}
 
-	services.SetServicesDatabase(client.Database(cfg.DBName))
+	services.SetFirestoreClient(client)
 
 	router := gin.Default()
-	routes.RegisterRoutes(router, client.Database(cfg.DBName))
+	routes.RegisterRoutes(router, client)
 
 	// Graceful shutdown
 	srv := &http.Server{

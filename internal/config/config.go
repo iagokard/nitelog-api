@@ -6,8 +6,7 @@ import (
 )
 
 type Config struct {
-	MongoURI   string
-	DBName     string
+	ProjectID  string
 	ServerAddr string
 	Timezone   string
 	JWTSecret  string
@@ -15,8 +14,7 @@ type Config struct {
 
 func Load() *Config {
 	return &Config{
-		MongoURI:   mustGetEnv("MONGO_URI"),
-		DBName:     mustGetEnv("DB_NAME"),
+		ProjectID:  mustGetEnv("GOOGLE_PROJECT_ID"),
 		ServerAddr: getEnv("SERVER_ADDR", ":8080"),
 		Timezone:   getEnv("NITELOG_TIMEZONE", "America/Sao_Paulo"),
 		JWTSecret:  mustGetEnv("JWT_SECRET"),

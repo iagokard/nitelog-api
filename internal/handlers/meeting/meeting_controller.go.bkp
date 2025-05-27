@@ -1,0 +1,13 @@
+package meeting
+
+import (
+	"cloud.google.com/go/firestore"
+)
+
+type MeetingController struct {
+	client *firestore.Client
+}
+
+func NewMeetingController(client *firestore.Client) *MeetingController {
+	return &MeetingController{client: client}
+}

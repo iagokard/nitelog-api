@@ -1,7 +1,15 @@
 package services
 
-import "go.mongodb.org/mongo-driver/mongo"
+import (
+	"cloud.google.com/go/firestore"
+)
 
-var db *mongo.Database
+var firestoreClient *firestore.Client
 
-func SetServicesDatabase(database *mongo.Database) { db = database }
+func SetFirestoreClient(client *firestore.Client) {
+	firestoreClient = client
+}
+
+func GetCollection(collectionName string) *firestore.CollectionRef {
+	return firestoreClient.Collection(collectionName)
+}
