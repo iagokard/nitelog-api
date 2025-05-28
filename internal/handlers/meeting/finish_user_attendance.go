@@ -13,8 +13,8 @@ import (
 )
 
 type FinishUserAttendanceRequest struct {
-	UserID string `json:"user_id" binding:"required" example:"68253a5154c3608b34c81d79"`
-	Date   string `json:"date" binding:"required" example:"2025-10-26"`
+	Registration string `firestore:"registration" json:"registration" example:"8854652123" binding:"required"`
+	Date         string `json:"date" example:"2025-10-26" binding:"required"`
 }
 
 // FinishUserAttendance godoc
@@ -56,7 +56,7 @@ func FinishUserAttendance(c *gin.Context) {
 	ctx := context.Background()
 
 	userService := userServices.NewUserService()
-	_, err = userService.GetByID(ctx, req.UserID)
+	_, err = userService.GetByRegistration(ctx, req.Registration)
 
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
@@ -66,7 +66,7 @@ func FinishUserAttendance(c *gin.Context) {
 	}
 
 	meetingService := meetingServices.NewMeetingService()
-	err = meetingService.FinishAttendance(ctx, *normalizedDate, req.UserID)
+	err = meetingService.FinishAttendance(ctx, *normalizedDate, req.Registration)
 
 	if errors.Is(err, meetingServices.ErrMeetingNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{
@@ -76,7 +76,7 @@ func FinishUserAttendance(c *gin.Context) {
 	}
 
 	if errors.Is(err, meetingServices.ErrNoAttendanceToFinish) {
-		c.JSON(http.StatusBadGateway, gin.H{
+		c.JSON(http.StatusNotAcceptable, gin.H{
 			"error": err.Error(),
 		})
 		return

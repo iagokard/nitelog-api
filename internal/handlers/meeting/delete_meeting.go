@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"net/http"
-	"nitelog/internal/services/meeting"
+	meetingServices "nitelog/internal/services/meeting"
+	userServices "nitelog/internal/services/user"
+	"slices"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,21 +17,40 @@ import (
 // @Tags         meeting
 // @Accept       json
 // @Produce      json
-// @Param        meeting_id   path   string true "Id da reunião (BSON primitive.ObjectID)"
+// @Param        meeting_id   path   string true "Id da reunião"
 // @Success      200         {object}  util.MessageResponse
 // @Failure      400         {object}  util.ErrorResponse
 // @Failure      404         {object}  util.ErrorResponse
 // @Failure      500         {object}  util.ErrorResponse
-// @Router       /meetings/:id [delete]
+// @Router       /meetings/delete/:id [delete]
 func DeleteMeeting(c *gin.Context) {
-	id := c.Param("id")
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
 
 	ctx := context.Background()
 
-	meetingService := services.NewMeetingService()
-	err := meetingService.SoftDelete(ctx, id)
+	userService := userServices.NewUserService()
+	user, err := userService.GetByID(ctx, userID.(string))
 
-	if errors.Is(err, services.ErrMeetingNotFound) {
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if !slices.Contains(user.Roles, "admin") {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized, user is not admin"})
+		return
+	}
+
+	id := c.Param("id")
+
+	meetingService := meetingServices.NewMeetingService()
+	err = meetingService.SoftDelete(ctx, id)
+
+	if errors.Is(err, meetingServices.ErrMeetingNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Meeting not found"})
 		return
 	}

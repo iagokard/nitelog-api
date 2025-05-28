@@ -16,7 +16,7 @@ func (s *MeetingService) Update(ctx context.Context, id string, updatedMeeting m
 		return err
 	}
 
-	update := make(map[string]interface{})
+	update := make(map[string]any)
 	changes := false
 
 	if updatedMeeting.MeetingCode != "" && updatedMeeting.MeetingCode != existingMeeting.MeetingCode {
@@ -105,11 +105,11 @@ func equalAttendance(a, b []models.Attendance) bool {
 
 	aMap := make(map[string]models.Attendance)
 	for _, item := range a {
-		aMap[item.UserID+item.StartTime.String()] = item
+		aMap[item.Registration+item.StartTime.String()] = item
 	}
 
 	for _, item := range b {
-		key := item.UserID + item.StartTime.String()
+		key := item.Registration + item.StartTime.String()
 		if _, exists := aMap[key]; !exists {
 			return false
 		}

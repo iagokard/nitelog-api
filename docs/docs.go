@@ -89,7 +89,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "ID da reunião BSON primitive.ObjectID",
+                        "description": "ID da reunião",
                         "name": "meeting_id",
                         "in": "path",
                         "required": true
@@ -100,54 +100,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.Meeting"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/util.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/util.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/util.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Deleta uma reunião do banco de dados",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "meeting"
-                ],
-                "summary": "Deleta uma reunião",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Id da reunião (BSON primitive.ObjectID)",
-                        "name": "meeting_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/util.MessageResponse"
                         }
                     },
                     "400": {
@@ -256,6 +208,56 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.Meeting"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/meetings/delete/:id": {
+            "delete": {
+                "description": "Deleta uma reunião do banco de dados",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "meeting"
+                ],
+                "summary": "Deleta uma reunião",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Id da reunião",
+                        "name": "meeting_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/util.MessageResponse"
                         }
                     },
                     "400": {
@@ -431,7 +433,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
+            }
+        },
+        "/users/delete/:id": {
             "delete": {
                 "security": [
                     {
@@ -452,7 +456,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Id do usuário (BSON primitive.ObjectID)",
+                        "description": "Id do usuário",
                         "name": "user_id",
                         "in": "path",
                         "required": true

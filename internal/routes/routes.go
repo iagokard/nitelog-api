@@ -34,7 +34,7 @@ func RegisterRoutes(router *gin.Engine, client *firestore.Client) {
 			middleware.JWTMiddleware(cfg.JWTSecret),
 		)
 
-		meetings.DELETE("/:id", meetingHandler.DeleteMeeting)
+		meetings.DELETE("/delete/:id", meetingHandler.DeleteMeeting)
 	}
 
 	{

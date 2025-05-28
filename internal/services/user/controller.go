@@ -13,7 +13,7 @@ import (
 var (
 	ErrUserNotFound      = errors.New("user not found")
 	ErrEmailTaken        = errors.New("email already taken")
-	ErrUsernameTaken     = errors.New("username already taken")
+	ErrRegistrationTaken = errors.New("username already taken")
 	ErrNoChangesDetected = errors.New("no changes detected on update")
 )
 
@@ -27,14 +27,14 @@ func NewUserService() *UserService {
 	}
 }
 
-func (s *UserService) isFieldTaken(ctx context.Context, field, value string, excludeIDs ...string) (bool, error) {
+func (s *UserService) isFieldTaken(ctx context.Context, field, value string, excludeID string) (bool, error) {
 	query := s.collection.
 		Where(field, "==", value).
 		Where("deletedAt", "==", nil).
 		Limit(1)
 
-	if len(excludeIDs) > 0 {
-		docRef := s.collection.Doc(excludeIDs[0])
+	if excludeID != "" {
+		docRef := s.collection.Doc(excludeID)
 		query = query.Where(firestore.DocumentID, "!=", docRef)
 	}
 
@@ -44,3 +44,7 @@ func (s *UserService) isFieldTaken(ctx context.Context, field, value string, exc
 	}
 	return len(docs) > 0, nil
 }
+
+// func (s *UserService) isAdmin(ctx context.Context, id string) (bool, error) {
+// 	user, err := s.GetByID(ctx, id)
+// 	Vk

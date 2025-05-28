@@ -16,7 +16,7 @@ import (
 // @Tags         meeting
 // @Accept       json
 // @Produce      json
-// @Param        meeting_id   path     string true "ID da reunião BSON primitive.ObjectID"
+// @Param        meeting_id   path     string true "ID da reunião"
 // @Success      200         {object}  models.Meeting
 // @Failure      400         {object}  util.ErrorResponse
 // @Failure      404         {object}  util.ErrorResponse

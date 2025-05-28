@@ -19,17 +19,19 @@ func (s *UserService) Update(ctx context.Context, id string, updatedUser models.
 	var updates []firestore.Update
 	changes := false
 
-	if updatedUser.Username != "" && updatedUser.Username != existingUser.Username {
-		taken, err := s.isFieldTaken(ctx, "username", updatedUser.Username, id)
+	if updatedUser.Registration != "" && updatedUser.Registration != existingUser.Registration {
+		taken, err := s.isFieldTaken(ctx, "registration", updatedUser.Registration, id)
 		if err != nil {
-			return fmt.Errorf("username check failed: %w", err)
+			return fmt.Errorf("registration check failed: %w", err)
 		}
+
 		if taken {
-			return ErrUsernameTaken
+			return ErrRegistrationTaken
 		}
+
 		updates = append(updates, firestore.Update{
-			Path:  "username",
-			Value: updatedUser.Username,
+			Path:  "registration",
+			Value: updatedUser.Registration,
 		})
 		changes = true
 	}
@@ -70,6 +72,14 @@ func (s *UserService) Update(ctx context.Context, id string, updatedUser models.
 			})
 			changes = true
 		}
+	}
+
+	if updatedUser.Name != "" && updatedUser.Name != existingUser.Name {
+		updates = append(updates, firestore.Update{
+			Path:  "name",
+			Value: updatedUser.Name,
+		})
+		changes = true
 	}
 
 	if !changes {

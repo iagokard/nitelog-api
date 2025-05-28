@@ -14,8 +14,8 @@ import (
 )
 
 type AddUserAttendanceRequest struct {
-	UserID string `json:"user_id" example:"68253a5154c3608b34c81d79" binding:"required"`
-	Date   string `json:"date" example:"2025-10-26" binding:"required"`
+	Registration string `firestore:"registration" json:"registration" example:"8854652123" binding:"required"`
+	Date         string `json:"date" example:"2025-10-26" binding:"required"`
 }
 
 // AddUserAttendance godoc
@@ -71,7 +71,7 @@ func AddUserAttendance(c *gin.Context) {
 	}
 
 	userService := userServices.NewUserService()
-	_, err = userService.GetByID(ctx, req.UserID)
+	_, err = userService.GetByRegistration(ctx, req.Registration)
 
 	if errors.Is(err, userServices.ErrUserNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
@@ -83,7 +83,7 @@ func AddUserAttendance(c *gin.Context) {
 		return
 	}
 
-	err = meetingService.AddAttendance(ctx, *normalizedDate, req.UserID)
+	err = meetingService.AddAttendance(ctx, *normalizedDate, req.Registration)
 	if errors.Is(err, meetingServices.ErrActiveAttendanceExists) {
 		c.JSON(http.StatusConflict, gin.H{"error": "User already in attendance"})
 		return

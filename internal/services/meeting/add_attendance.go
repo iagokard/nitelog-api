@@ -10,7 +10,7 @@ import (
 	"cloud.google.com/go/firestore"
 )
 
-func (s *MeetingService) AddAttendance(ctx context.Context, date time.Time, userID string) error {
+func (s *MeetingService) AddAttendance(ctx context.Context, date time.Time, registration string) error {
 	query := s.collection.
 		Where("date", "==", date).
 		Where("deletedAt", "==", nil).
@@ -31,15 +31,15 @@ func (s *MeetingService) AddAttendance(ctx context.Context, date time.Time, user
 	}
 
 	for _, attendance := range meeting.Attendance {
-		if attendance.UserID == userID && attendance.EndTime == nil {
+		if attendance.Registration == registration {
 			return ErrActiveAttendanceExists
 		}
 	}
 
 	newAttendance := models.Attendance{
-		UserID:    userID,
-		StartTime: time.Now(),
-		EndTime:   nil,
+		Registration: registration,
+		StartTime:    time.Now(),
+		EndTime:      nil,
 	}
 	meeting.Attendance = append(meeting.Attendance, newAttendance)
 

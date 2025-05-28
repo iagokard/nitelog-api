@@ -10,7 +10,7 @@ import (
 	"cloud.google.com/go/firestore"
 )
 
-func (s *MeetingService) FinishAttendance(ctx context.Context, date time.Time, userID string) error {
+func (s *MeetingService) FinishAttendance(ctx context.Context, date time.Time, registration string) error {
 	query := s.collection.
 		Where("date", "==", date).
 		Where("deletedAt", "==", nil).
@@ -33,7 +33,7 @@ func (s *MeetingService) FinishAttendance(ctx context.Context, date time.Time, u
 	updated := false
 	now := time.Now()
 	for i := range meeting.Attendance {
-		if meeting.Attendance[i].UserID == userID && meeting.Attendance[i].EndTime == nil {
+		if meeting.Attendance[i].Registration == registration && meeting.Attendance[i].EndTime == nil {
 			meeting.Attendance[i].EndTime = &now
 			updated = true
 			break

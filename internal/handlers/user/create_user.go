@@ -12,9 +12,9 @@ import (
 )
 
 type CreateUserRequest struct {
-	Username string `json:"username" example:"username01"`
-	Email    string `json:"email" example:"sample@email.com"`
-	Password string `json:"password" binding:"required" example:"safePassword123#"`
+	Registration string `firestore:"registration" json:"registration" example:"8854652123" binding:"required"`
+	Email        string `json:"email" example:"sample@email.com" binding:"required"`
+	Password     string `json:"password" example:"safePassword123#" binding:"required"`
 }
 
 // CreateUser godoc
@@ -47,9 +47,9 @@ func CreateUser(c *gin.Context) {
 
 	ctx := context.Background()
 	userService := services.NewUserService()
-	newUser, err := userService.Create(ctx, req.Username, req.Email, hash)
+	newUser, err := userService.Create(ctx, req.Registration, req.Email, hash)
 
-	if errors.Is(err, services.ErrEmailTaken) || errors.Is(err, services.ErrUsernameTaken) {
+	if errors.Is(err, services.ErrEmailTaken) || errors.Is(err, services.ErrRegistrationTaken) {
 		c.JSON(http.StatusConflict, gin.H{
 			"error": err.Error(),
 		})

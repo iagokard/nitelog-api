@@ -12,9 +12,10 @@ import (
 )
 
 type UpdateUserRequest struct {
-	Username string `json:"username" example:"username01"`
-	Email    string `json:"email" example:"sample@email.com"`
-	Password string `jason:"password" example:"safePassword123#"`
+	Registration string `firestore:"registration" json:"registration" example:"8854652123"`
+	Email        string `json:"email" example:"sample@email.com"`
+	Password     string `jason:"password" example:"safePassword123#"`
+	Name         string `jason:"name" example:"Mary"`
 }
 
 // UpdateUser godoc
@@ -33,14 +34,14 @@ type UpdateUserRequest struct {
 // @Security BearerAuth
 // @Router       /users/update/:id [put]
 func UpdateUser(c *gin.Context) {
-	uid, exists := c.Get("userID")
+	userID, exists := c.Get("userID")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
 	}
 
 	idParam := c.Param("id")
-	if idParam != uid.(string) {
+	if idParam != userID.(string) {
 		c.JSON(http.StatusForbidden, gin.H{"error": "cannot update other user"})
 		return
 	}
@@ -53,8 +54,9 @@ func UpdateUser(c *gin.Context) {
 
 	user := models.User{
 		Email:        req.Email,
-		Username:     req.Username,
+		Registration: req.Registration,
 		PasswordHash: req.Password,
+		Name:         req.Name,
 	}
 
 	ctx := context.Background()
@@ -63,6 +65,16 @@ func UpdateUser(c *gin.Context) {
 
 	if errors.Is(err, services.ErrNoChangesDetected) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if errors.Is(err, services.ErrEmailTaken) {
+		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
+		return
+	}
+
+	if errors.Is(err, services.ErrRegistrationTaken) {
+		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 		return
 	}
 
