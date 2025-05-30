@@ -618,16 +618,16 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "date",
-                "user_id"
+                "registration"
             ],
             "properties": {
                 "date": {
                     "type": "string",
                     "example": "2025-10-26"
                 },
-                "user_id": {
+                "registration": {
                     "type": "string",
-                    "example": "68253a5154c3608b34c81d79"
+                    "example": "8854652123"
                 }
             }
         },
@@ -659,16 +659,16 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "date",
-                "user_id"
+                "registration"
             ],
             "properties": {
                 "date": {
                     "type": "string",
                     "example": "2025-10-26"
                 },
-                "user_id": {
+                "registration": {
                     "type": "string",
-                    "example": "68253a5154c3608b34c81d79"
+                    "example": "8854652123"
                 }
             }
         },
@@ -679,13 +679,13 @@ const docTemplate = `{
                     "type": "string",
                     "example": "2025-05-14T22:12:34.1Z"
                 },
+                "registration": {
+                    "type": "string",
+                    "example": "8854652123"
+                },
                 "start_time": {
                     "type": "string",
                     "example": "2025-05-14T20:19:02.1Z"
-                },
-                "user_id": {
-                    "type": "string",
-                    "example": "d4e5f6a7b8c9d0e1f2a3b4c5"
                 }
             }
         },
@@ -745,7 +745,7 @@ const docTemplate = `{
                 },
                 "registration": {
                     "type": "string",
-                    "example": "42682087032"
+                    "example": "5612879465"
                 },
                 "roles": {
                     "type": "array",
@@ -756,30 +756,32 @@ const docTemplate = `{
                 "updated_at": {
                     "type": "string",
                     "example": "2026-05-14T12:18:34.245Z"
-                },
-                "username": {
-                    "type": "string",
-                    "example": "username01"
                 }
             }
         },
         "user.CreateUserRequest": {
             "type": "object",
             "required": [
-                "password"
+                "email",
+                "password",
+                "registration"
             ],
             "properties": {
                 "email": {
                     "type": "string",
                     "example": "sample@email.com"
                 },
+                "name": {
+                    "type": "string",
+                    "example": "John Testes"
+                },
                 "password": {
                     "type": "string",
                     "example": "safePassword123#"
                 },
-                "username": {
+                "registration": {
                     "type": "string",
-                    "example": "username01"
+                    "example": "8854652123"
                 }
             }
         },
@@ -813,13 +815,17 @@ const docTemplate = `{
                     "type": "string",
                     "example": "sample@email.com"
                 },
+                "name": {
+                    "type": "string",
+                    "example": "Mary"
+                },
                 "password": {
                     "type": "string",
                     "example": "safePassword123#"
                 },
-                "username": {
+                "registration": {
                     "type": "string",
-                    "example": "username01"
+                    "example": "8854652123"
                 }
             }
         },

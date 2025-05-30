@@ -8,7 +8,7 @@ import (
 	"nitelog/internal/models"
 )
 
-func (s *UserService) Create(ctx context.Context, registration, email string, pswdHash []byte) (*models.User, error) {
+func (s *UserService) Create(ctx context.Context, registration, email, name string, pswdHash []byte) (*models.User, error) {
 	emailTaken, err := s.isFieldTaken(ctx, "email", email, "")
 	if err != nil {
 		return nil, fmt.Errorf("email check failed: %w", err)
@@ -27,6 +27,7 @@ func (s *UserService) Create(ctx context.Context, registration, email string, ps
 
 	user := models.User{
 		Registration: registration,
+		Name:         name,
 		Email:        email,
 		PasswordHash: string(pswdHash),
 		Roles:        []string{},

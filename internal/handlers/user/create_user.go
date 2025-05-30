@@ -12,7 +12,8 @@ import (
 )
 
 type CreateUserRequest struct {
-	Registration string `firestore:"registration" json:"registration" example:"8854652123" binding:"required"`
+	Name         string `json:"name" example:"John Testes" binding:"required"`
+	Registration string `json:"registration" example:"8854652123" binding:"required"`
 	Email        string `json:"email" example:"sample@email.com" binding:"required"`
 	Password     string `json:"password" example:"safePassword123#" binding:"required"`
 }
@@ -47,7 +48,7 @@ func CreateUser(c *gin.Context) {
 
 	ctx := context.Background()
 	userService := services.NewUserService()
-	newUser, err := userService.Create(ctx, req.Registration, req.Email, hash)
+	newUser, err := userService.Create(ctx, req.Registration, req.Email, req.Name, hash)
 
 	if errors.Is(err, services.ErrEmailTaken) || errors.Is(err, services.ErrRegistrationTaken) {
 		c.JSON(http.StatusConflict, gin.H{

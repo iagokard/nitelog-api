@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"net/http"
 	_ "nitelog/docs"
 	"nitelog/internal/config"
 	"nitelog/internal/middleware"
@@ -18,7 +19,11 @@ import (
 func RegisterRoutes(router *gin.Engine, client *firestore.Client) {
 	cfg := config.Load()
 
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	router.GET("/apidoc", func(c *gin.Context) {
+		c.Redirect(http.StatusMovedPermanently, "/apidoc/index.html")
+	})
+	router.GET("/apidoc/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	router.Use(middleware.TimeoutMiddleware())
 
 	{

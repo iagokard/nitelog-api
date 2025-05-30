@@ -189,3 +189,5 @@ firebase-emulator/node_modules/
 # Authentication emulator data
 auth_emulator.log
 auth_emulator_data.json
+
+nitelog-1e1a5-firebase-adminsdk-3gzzr-5803258e1f.json
