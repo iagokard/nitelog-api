@@ -103,6 +103,7 @@ packer_compiled.lua
 
 ### Environment Files ###
 # Local environment files
+.env*
 .env
 .env.local
 .env.development

@@ -10,6 +10,7 @@ type Config struct {
 	ServerAddr string
 	Timezone   string
 	JWTSecret  string
+	ENV        string
 }
 
 func Load() *Config {
@@ -18,6 +19,7 @@ func Load() *Config {
 		ServerAddr: getEnv("SERVER_ADDR", ":8080"),
 		Timezone:   getEnv("NITELOG_TIMEZONE", "America/Sao_Paulo"),
 		JWTSecret:  mustGetEnv("JWT_SECRET"),
+		ENV:        getEnv("NITELOG_ENV", "PRODUCTION"),
 	}
 }
 

@@ -47,6 +47,7 @@ func RegisterRoutes(router *gin.Engine, client *firestore.Client) {
 		users.POST("/register", userHandler.CreateUser)
 		users.POST("/login", userHandler.LoginUser)
 		users.GET("/:id", userHandler.GetUserByID)
+		users.GET("/", userHandler.GetUsers)
 
 		users.Use(
 			middleware.CORSMiddleware(),

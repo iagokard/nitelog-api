@@ -26,18 +26,24 @@ import (
 // @contact.name    Suporte NiteLog
 // @contact.email   sample@email.com
 // @license.name    MIT
-// @host            localhost:8080
+// @host            nitelogdev.discloud.app
 // @BasePath        /
 // @securityDefinitions.apikey  BearerAuth
 // @in                          header
 // @name                        Authorization
 func main() {
-	err := godotenv.Load()
+	cfg := config.Load()
+
+	var err error
+	if cfg.ENV != "PRODUCTION" {
+		err = godotenv.Load(".env.dev")
+	} else {
+		err = godotenv.Load(".env")
+	}
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-
-	cfg := config.Load()
+	log.Printf("running in %s environment", cfg.ENV)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
