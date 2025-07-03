@@ -5,9 +5,12 @@ import (
 	"errors"
 	"fmt"
 
+	"nitelog/internal/models"
 	"nitelog/internal/services"
+	"nitelog/internal/util"
 
 	"cloud.google.com/go/firestore"
+	"github.com/gin-gonic/gin"
 )
 
 var (
@@ -45,6 +48,19 @@ func (s *UserService) isFieldTaken(ctx context.Context, field, value string, exc
 	return len(docs) > 0, nil
 }
 
-// func (s *UserService) isAdmin(ctx context.Context, id string) (bool, error) {
-// 	user, err := s.GetByID(ctx, id)
-// 	Vk
+func GetAuthJWTWithUser(ginContext *gin.Context) (*models.User, error) {
+	userID, err := util.GetAuthJWT(ginContext)
+	if err != nil {
+		return nil, err
+	}
+
+	ctx := context.Background()
+	userService := NewUserService()
+
+	user, err := userService.GetByID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}

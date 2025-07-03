@@ -30,6 +30,7 @@ type AddUserAttendanceRequest struct {
 // @Failure      404         {object}  util.ErrorResponse
 // @Failure      409      {object}  util.ErrorResponse
 // @Failure      500         {object}  util.ErrorResponse
+// @securityDefinitions.apikey  BearerAuth
 // @Router       /meetings/add-attendance [post]
 func AddUserAttendance(c *gin.Context) {
 	var req AddUserAttendanceRequest

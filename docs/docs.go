@@ -241,7 +241,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "meeting"
+                    "meeting_admin"
                 ],
                 "summary": "Deleta uma reunião",
                 "parameters": [
@@ -334,6 +334,39 @@ const docTemplate = `{
             }
         },
         "/users": {
+            "get": {
+                "description": "Retorna lista com todos os usuários",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user_admin"
+                ],
+                "summary": "Retorna todos os usuários",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.User"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Cadastra um novo usuário no sistema",
                 "consumes": [
@@ -763,6 +796,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "email",
+                "name",
                 "password",
                 "registration"
             ],
@@ -862,7 +896,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8080",
+	Host:             "nitelogdev.discloud.app",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "NITELog API",

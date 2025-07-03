@@ -19,25 +19,28 @@ import (
 func RegisterRoutes(router *gin.Engine, client *firestore.Client) {
 	cfg := config.Load()
 
+	router.Use(middleware.TimeoutMiddleware())
+	router.Use(middleware.CORS())
+
 	router.GET("/apidoc", func(c *gin.Context) {
 		c.Redirect(http.StatusMovedPermanently, "/apidoc/index.html")
 	})
 	router.GET("/apidoc/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	router.Use(middleware.TimeoutMiddleware())
-
 	{
 		meetings := router.Group("/meetings")
-		meetings.POST("", meetingHandler.CreateMeeting)
+
+		meetings.Use(
+			middleware.JWT(cfg.JWTSecret),
+		)
+
 		meetings.GET("/by-date/:date", meetingHandler.GetMeetingByDate)
 		meetings.GET("/:id", meetingHandler.GetMeetingByID)
+		meetings.POST("", meetingHandler.CreateMeeting)
 		meetings.POST("/add-attendance", meetingHandler.AddUserAttendance)
 		meetings.POST("/finish-attendance", meetingHandler.FinishUserAttendance)
 
-		meetings.Use(
-			middleware.CORSMiddleware(),
-			middleware.JWTMiddleware(cfg.JWTSecret),
-		)
+		meetings.Use(middleware.AdminOnly())
 
 		meetings.DELETE("/delete/:id", meetingHandler.DeleteMeeting)
 	}
@@ -46,15 +49,17 @@ func RegisterRoutes(router *gin.Engine, client *firestore.Client) {
 		users := router.Group("/users")
 		users.POST("/register", userHandler.CreateUser)
 		users.POST("/login", userHandler.LoginUser)
-		users.GET("/:id", userHandler.GetUserByID)
-		users.GET("/", userHandler.GetUsers)
 
 		users.Use(
-			middleware.CORSMiddleware(),
-			middleware.JWTMiddleware(cfg.JWTSecret),
+			middleware.JWT(cfg.JWTSecret),
 		)
 
+		users.GET("/:id", userHandler.GetUserByID)
 		users.DELETE("/delete/:id", userHandler.DeleteUser)
 		users.PUT("/update/:id", userHandler.UpdateUser)
+
+		users.Use(middleware.AdminOnly())
+
+		users.GET("/", userHandler.GetUsers)
 	}
 }

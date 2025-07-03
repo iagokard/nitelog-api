@@ -21,6 +21,7 @@ import (
 // @Failure      400         {object}  util.ErrorResponse
 // @Failure      404         {object}  util.ErrorResponse
 // @Failure      500         {object}  util.ErrorResponse
+// @securityDefinitions.apikey  BearerAuth
 // @Router       /meetings/:id [get]
 func GetMeetingByID(c *gin.Context) {
 	id := c.Param("id")

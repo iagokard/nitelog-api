@@ -34,14 +34,17 @@ type UpdateUserRequest struct {
 // @Security BearerAuth
 // @Router       /users/update/:id [put]
 func UpdateUser(c *gin.Context) {
-	userID, exists := c.Get("userID")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+	user, err := services.GetAuthJWTWithUser(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error":   "unauthorized",
+			"details": err.Error(),
+		})
 		return
 	}
 
 	idParam := c.Param("id")
-	if idParam != userID.(string) {
+	if idParam != user.ID && !user.IsAdmin() {
 		c.JSON(http.StatusForbidden, gin.H{"error": "cannot update other user"})
 		return
 	}
@@ -52,7 +55,7 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 
-	user := models.User{
+	updatedUser := models.User{
 		Email:        req.Email,
 		Registration: req.Registration,
 		PasswordHash: req.Password,
@@ -61,7 +64,7 @@ func UpdateUser(c *gin.Context) {
 
 	ctx := context.Background()
 	userService := services.NewUserService()
-	err := userService.Update(ctx, idParam, user)
+	err = userService.Update(ctx, idParam, updatedUser)
 
 	if errors.Is(err, services.ErrNoChangesDetected) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

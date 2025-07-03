@@ -35,6 +35,7 @@ type DuplicatedMeetingErrorResponse struct {
 // @Failure      400      {object}  util.ErrorResponse
 // @Failure      409      {object}  DuplicatedMeetingErrorResponse
 // @Failure      500      {object}  util.ErrorResponse
+// @securityDefinitions.apikey  BearerAuth
 // @Router       /meetings [post]
 func CreateMeeting(c *gin.Context) {
 	var req CreateMeetingRequest

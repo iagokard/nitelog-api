@@ -3,9 +3,11 @@ package util
 import (
 	"crypto/rand"
 	"encoding/base64"
+	"errors"
 	"nitelog/internal/config"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -73,4 +75,19 @@ func GenerateJWT(userID, secret string) (string, error) {
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(secret))
+}
+
+func GetAuthJWT(ginContext *gin.Context) (string, error) {
+	userTokenID, exists := ginContext.Get("userID")
+	if !exists {
+		return "", errors.New("error getting user id from token")
+	}
+
+	userID, ok := userTokenID.(string)
+
+	if !ok {
+		return "", errors.New("error parsing user id from token")
+	}
+
+	return userID, nil
 }

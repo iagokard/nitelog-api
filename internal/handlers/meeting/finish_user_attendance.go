@@ -28,6 +28,7 @@ type FinishUserAttendanceRequest struct {
 // @Failure      400         {object}  util.ErrorResponse
 // @Failure      404         {object}  util.ErrorResponse
 // @Failure      500         {object}  util.ErrorResponse
+// @securityDefinitions.apikey  BearerAuth
 // @Router       /meetings/finish-attendance [post]
 func FinishUserAttendance(c *gin.Context) {
 	var req FinishUserAttendanceRequest

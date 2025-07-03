@@ -21,6 +21,7 @@ import (
 // @Failure      400         {object}  util.ErrorResponse
 // @Failure      404         {object}  util.ErrorResponse
 // @Failure      500         {object}  util.ErrorResponse
+// @securityDefinitions.apikey  BearerAuth
 // @Router       /users/:id [get]
 func GetUserByID(c *gin.Context) {
 	id := c.Param("id")
@@ -31,7 +32,7 @@ func GetUserByID(c *gin.Context) {
 	user, err := userService.GetByID(ctx, id)
 
 	if errors.Is(err, services.ErrUserNotFound) {
-		c.JSON(http.StatusNotFound, gin.H{"error": "No meeting for this date"})
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 

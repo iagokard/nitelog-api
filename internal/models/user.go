@@ -1,6 +1,7 @@
 package models
 
 import (
+	"slices"
 	"time"
 )
 
@@ -15,4 +16,8 @@ type User struct {
 	CreatedAt    time.Time  `firestore:"createdAt" json:"created_at" example:"2025-05-14T20:14:04.245Z"`
 	UpdatedAt    time.Time  `firestore:"updatedAt" json:"updated_at" example:"2026-05-14T12:18:34.245Z"`
 	DeletedAt    *time.Time `firestore:"deletedAt" json:"deleted_at,omitempty" example:"2025-05-15T09:45:00Z"`
+}
+
+func (user *User) IsAdmin() bool {
+	return slices.Contains(user.Roles, "admin")
 }

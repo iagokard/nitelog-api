@@ -14,7 +14,7 @@ import (
 // DeleteMeeting godoc
 // @Summary      Deleta uma reunião
 // @Description  Deleta uma reunião do banco de dados
-// @Tags         meeting
+// @Tags         meeting_admin
 // @Accept       json
 // @Produce      json
 // @Param        meeting_id   path   string true "Id da reunião"
@@ -22,6 +22,7 @@ import (
 // @Failure      400         {object}  util.ErrorResponse
 // @Failure      404         {object}  util.ErrorResponse
 // @Failure      500         {object}  util.ErrorResponse
+// @securityDefinitions.apikey  BearerAuth
 // @Router       /meetings/delete/:id [delete]
 func DeleteMeeting(c *gin.Context) {
 	userID, exists := c.Get("userID")
