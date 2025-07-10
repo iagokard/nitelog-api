@@ -32,18 +32,22 @@ import (
 // @in                          header
 // @name                        Authorization
 func main() {
-	cfg := config.Load()
+	devEnv := os.Getenv("NITELOG_ENV")
 
 	var err error
-	if cfg.ENV != "PRODUCTION" {
-		err = godotenv.Load(".env.dev")
-	} else {
+	if devEnv == "" {
+		devEnv = "PRODUCTION"
 		err = godotenv.Load(".env")
+	} else {
+		err = godotenv.Load(".env.dev")
 	}
+
+	cfg := config.Load()
+
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	log.Printf("running in %s environment", cfg.ENV)
+	log.Printf("running in %s environment", devEnv)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
