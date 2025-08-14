@@ -52,29 +52,29 @@ func JWT(secret string) gin.HandlerFunc {
 
 func CORS() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		allowedOrigins := map[string]bool{
-			"http://localhost":               true,
-			"https://nitlogdev.discould.app": true,
-			"https://nitlog.discould.app":    true,
-		}
-
-		origin := c.Request.Header.Get("Origin")
-		if strings.Contains(origin, "http://localhost:") {
-			allowedOrigins[origin] = true
-		}
-
-		if allowedOrigins[origin] {
-			c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
-		}
-
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(http.StatusNoContent)
-			return
-		}
-		c.Next()
+		// allowedOrigins := map[string]bool{
+		// 	"http://localhost":               true,
+		// 	"https://nitlogdev.discould.app": true,
+		// 	"https://nitlog.discould.app":    true,
+		// }
+		//
+		// origin := c.Request.Header.Get("Origin")
+		// if strings.Contains(origin, "http://localhost:") {
+		// 	allowedOrigins[origin] = true
+		// }
+		//
+		// if allowedOrigins[origin] {
+		// 	c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
+		// }
+		//
+		// c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		// c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		//
+		// if c.Request.Method == "OPTIONS" {
+		// 	c.AbortWithStatus(http.StatusNoContent)
+		// 	return
+		// }
+		// c.Next()
 	}
 }
 

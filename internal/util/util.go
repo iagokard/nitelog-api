@@ -14,13 +14,18 @@ import (
 
 // @model ErrorResponse
 type ErrorResponse struct {
-	Error   string `json:"error"`
-	Details string `json:"details,omitempty"`
+	Code    int     `json:"code" example:"403"`
+	Version float32 `json:"version" example:"1.0"`
+	Error   string  `json:"error" example:"sample error message"`
+	Details string  `json:"details,omitempty" example:"error details"`
 }
 
 // @model MessageResponse
 type MessageResponse struct {
-	Message string `json:"message" example:"Sample status message"`
+	Code    int     `json:"code" example:"403"`
+	Version float32 `json:"version" example:"1.0"`
+	Error   string  `json:"error" example:"sample error message"`
+	Message string  `json:"message" example:"Sample status message"`
 }
 
 func NormalizeDate(date time.Time) (*time.Time, error) {
